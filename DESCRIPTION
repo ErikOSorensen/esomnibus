@@ -1,10 +1,13 @@
 Package: esomnibus
-Title: What the Package Does (One Line, Title Case)
+Title: Calculate Epps-Singleton Omnibus Test For Equality of Distribution
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Erik Ø.", "Sørensen", , "erik.sorensen@nhh.no", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-7155-4188"))
+Description: Functions to calculate Epps-Singleton (empirical characteristic function)
+    tests for equality of distribution in the two-sample setting. Provides some variations in 
+    how the scaling and the covariances are calculated to be able to compare with test
+    statistics calculated in the empirical literature.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
