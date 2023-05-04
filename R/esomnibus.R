@@ -1,4 +1,19 @@
-esomnibus.test <- function(x, ...) UseMethod("esomnibus.test")
+#' Epps-Singleton two-sample test for equality of distribution
+#'
+#' @aliases esomnibus.default esomnibus.formula
+#' @param x A vector or a formula
+#' @param ...
+#'
+#' @return An S3 object of type
+#' @export
+#'
+#' @examples
+#' x = runif(50)
+#' y = rnorm(50)
+#' esomnibus(x,y)
+esomnibus <- function(x, ...) {
+  UseMethod("esomnibus")
+}
 
 #' Calculate Epps-Singleton two-sample test
 #'
@@ -8,14 +23,12 @@ esomnibus.test <- function(x, ...) UseMethod("esomnibus.test")
 #' @param iqr_type How to calculate semi-inter-quartile-range. Reference the type argument in the IQR function. Defaults to 7. Special value: 99, as referenced in the appendix to the original publication.
 #' @param small_correction Should the small sample correction be applied? (TRUE or FALSE)
 #'
-#' @return An S3 object of type estest
+#' @return A list (which is also of class 'esomnibustest') with the following elements:
+#'
 #' @export
 #'
-#' @examples
-#' x = runif(50)
-#' y = rnorm(50)
-#' esomnibus.test.default(x,y)
-esomnibus.test.default <- function(y1,y2, t = c(0.4, 0.8), iqr_type = 7, small_correction = FALSE) {
+
+esomnibus.default <- function(y1 = numeric(), y2, t = c(0.4, 0.8), iqr_type = 7, small_correction = FALSE) {
   if(!missing(t) && (length(t) < 2 || is.na(t)))
     stop("'t' must be a vector of length >1")
   DNAME <- paste(deparse1(substitute(y1)),"vs",
@@ -38,9 +51,9 @@ esomnibus.test.default <- function(y1,y2, t = c(0.4, 0.8), iqr_type = 7, small_c
     l2 <- ceiling(n/4)
     u1 <- floor(3*n/4)
     u2 <- ceiling(3*n/4)
-    sigma <- 0.25 * (ys[l1] + ys[l2] + ys[l3] + ys[l4])
+    sigma <- 0.25 * (ys[l1] + ys[l2] + ys[u1] + ys[u2])
   } else {
-    sigma <- IQR(y, type = iqr_type)/2
+    sigma <- stats::IQR(y, type = iqr_type)/2
   }
   ts =t/sigma
   my1 <- as.matrix(y1)
@@ -48,8 +61,8 @@ esomnibus.test.default <- function(y1,y2, t = c(0.4, 0.8), iqr_type = 7, small_c
   mts <- t(as.matrix(ts))
   g1 <- cbind( cos(my1 %*% mts), sin(my1 %*% mts))
   g2 <- cbind( cos(my2 %*% mts), sin(my2 %*% mts))
-  cov1 <- cov(g1)
-  cov2 <- cov(g2)
+  cov1 <- stats::cov(g1)
+  cov2 <- stats::cov(g2)
   est_cov <- (n/n1)*cov1 + (n/n2)*cov2
   stopifnot("Covariance matrix has not got full rank!" = qr(est_cov)$rank == nrow(est_cov))
   est_cov_inv <- solve(est_cov)
@@ -67,20 +80,25 @@ esomnibus.test.default <- function(y1,y2, t = c(0.4, 0.8), iqr_type = 7, small_c
     }
   }
 
-  p <- 1 - pchisq(w,r)
+  p <- 1 - stats::pchisq(w,r)
   output <- list("method"="Epps-Singleton two-sample test for equality of distribution",
-                 "p.value"=p, "parameter"=w, "t"=t, "n1"=n1, "n2"=n2,
-                 "outcome"=DNAME, "Small-sample correction"=correcting,
-                 "iqr_type"=iqr_type,
-                 "df"=r)
-  class(output) <- "estest"
+                      "p.value"=p,
+                      "parameter"=w,
+                      "t"=t,
+                      "n1"=n1,
+                      "n2"=n2,
+                      "outcome"=DNAME,
+                      "Small-sample correction"=correcting,
+                      "iqr_type"=iqr_type,
+                      "df"=r)
+  class(output) <- "esomnibustest"
   output
 }
 
-esomnibus.test.formula <- function(formula, data, subset, na.action, ...) {
+esomnibus.formula <- function(formula, data, subset, na.action, ...) {
   if(missing(formula)
      || (length(formula) != 3L)
-     || (length(attr(terms(formula[-2L]), "term.labels")) != 1L))
+     || (length(attr(stats::terms(formula[-2L]), "term.labels")) != 1L))
     stop("'formula' missing or incorrect")
   m <- match.call(expand.dots = FALSE)
   if(is.matrix(eval(m$data, parent.frame())))
@@ -95,13 +113,13 @@ esomnibus.test.formula <- function(formula, data, subset, na.action, ...) {
   if(nlevels(g) != 2L)
     stop("grouping factor must have exactly 2 levels")
   DATA <- split(mf[[response]], g)
-  y <- esomnibus.test(y1 = DATA[[1L]], y2 = DATA[[2L]], ...)
+  y <- esomnibus(y1 = DATA[[1L]], y2 = DATA[[2L]], ...)
 
   y$outcome = DNAME
   y
 }
 
-print.estest <- function(x, digits = getOption("digits"), prefix = "\t", ...) {
+print.esomnibustest <- function(x, digits = getOption("digits"), prefix = "\t", ...) {
 
   cat("\n")
   cat(strwrap(x$method, prefix = prefix), sep = "\n")
