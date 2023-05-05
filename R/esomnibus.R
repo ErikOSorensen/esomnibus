@@ -17,8 +17,8 @@ esomnibus <- function(x, ...) {
 
 #' Calculate Epps-Singleton two-sample test
 #'
-#' @param y1 Vector of data from first sample
-#' @param y2 Vector of data from second sample
+#' @param x Vector of data from first sample
+#' @param y Vector of data from second sample
 #' @param t Vector of points to calculate empirical characteristic function at. Default c(0.4,0.8)
 #' @param iqr_type How to calculate semi-inter-quartile-range. Reference the type argument in the IQR function. Defaults to 7. Special value: 99, as referenced in the appendix to the original publication.
 #' @param small_correction Should the small sample correction be applied? (TRUE or FALSE)
@@ -28,15 +28,15 @@ esomnibus <- function(x, ...) {
 #' @export
 #'
 
-esomnibus.default <- function(y1 = numeric(), y2, t = c(0.4, 0.8), iqr_type = 7, small_correction = FALSE) {
+esomnibus.default <- function(x = numeric(), y, t = c(0.4, 0.8), iqr_type = 7, small_correction = FALSE) {
   if(!missing(t) && (length(t) < 2 || is.na(t)))
     stop("'t' must be a vector of length >1")
-  DNAME <- paste(deparse1(substitute(y1)),"vs",
-                 deparse1(substitute(y2)))
-  y1ok <- !is.na(y1)
-  y2ok <- !is.na(y2)
-  y1 <- y1[y1ok]
-  y2 <- y2[y2ok]
+  DNAME <- paste(deparse1(substitute(x)),"vs",
+                 deparse1(substitute(y)))
+  y1ok <- !is.na(x)
+  y2ok <- !is.na(y)
+  y1 <- x[y1ok]
+  y2 <- y[y2ok]
   y <- c(y1, y2)
   n1 <- length(y1)
   n2 <- length(y2)

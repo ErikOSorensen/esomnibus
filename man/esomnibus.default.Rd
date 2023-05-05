@@ -5,17 +5,17 @@
 \title{Calculate Epps-Singleton two-sample test}
 \usage{
 \method{esomnibus}{default}(
-  y1 = numeric(),
-  y2,
+  x = numeric(),
+  y,
   t = c(0.4, 0.8),
   iqr_type = 7,
   small_correction = FALSE
 )
 }
 \arguments{
-\item{y1}{Vector of data from first sample}
+\item{x}{Vector of data from first sample}
 
-\item{y2}{Vector of data from second sample}
+\item{y}{Vector of data from second sample}
 
 \item{t}{Vector of points to calculate empirical characteristic function at. Default c(0.4,0.8)}
 
